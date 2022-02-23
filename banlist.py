@@ -1,3 +1,4 @@
+######### The entirely of this file was made by laundmo#7544 in the northstar discord, thank you so so so so much!!!! #########
 import requests
 from pathlib import Path
 
