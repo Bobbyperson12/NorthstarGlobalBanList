@@ -1,48 +1,22 @@
 import requests
-import os
+from pathlib import Path
 
-__location__ = os.path.realpath(
-    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+banlist_path = Path.cwd() / "banlist.txt"
 
-url = "http://140.82.61.159/banlist.txt"
-# ban list
+r = requests.get("http://140.82.61.159/banlist.txt")
 
-r = requests.get(url)
-#retrieving data from the URL using get method
+with banlist_path.open("r+") as f:
+    # read existing bans
+    bans = set()
+    for line in f:
+        bans.add(line.strip())
 
-with open(os.path.join(__location__, "temp.txt"), 'wb') as f:
-#giving a name and saving it in any required format
-#opening the file in write mode
-
-    f.write(r.content) 
-    f.close()
-#writes the URL contents from the server
-
-# open the data file
-file = open(os.path.join(__location__, "temp.txt"))
-# read the file as a list
-data = file.readlines()
-# close the file
-file.close()
-
-newdata = []
-# clean file from \n
-for ban in data:
-    ban = ban.strip('\n')
-    newdata.append(ban)
-
-#print(data) #debug
-#print(newdata) #debug
-
-with open(os.path.join(__location__, "banlist.txt")) as f:
-    file_lines = [line.rstrip() for line in f.readlines()] # spooky code that does spooky things to make this work
-
-with open(os.path.join(__location__, "banlist.txt"), "a+") as file: 
-    for item in newdata: 
-        if item not in file_lines:
-            file.write(item + "\n")
-            print("banned: " + item)
+    # read response bans
+    for line in r.text.split("\n"):
+        line = line.strip()
+        # write if new
+        if line not in bans:
+            f.write(line + "\n")
+            print("banned: " + line)
         else:
-            print("already banned: " + item)
-
-os.remove(os.path.join(__location__, "temp.txt")) # cleanup
+            print("already banned: " + line)
